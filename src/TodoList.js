@@ -18,11 +18,11 @@ class TodoList extends Component {
     this.handleItemDelete = this.handleItemDelete.bind(this)
   }
 
-  handleInputChange(e) {
+  handleInputChange() {
     // this.setState({
     //   inputValue: e.target.value
     // })
-    const value = e.target.value;
+    const value = this.input.value;
     // setState()中传递一个函数，是异步操作，无法正确读出value值
     this.setState(() => ({
         inputValue: value
@@ -35,10 +35,14 @@ class TodoList extends Component {
     //   list: [...this.state.list ,this.state.inputValue],
     //   inputValue: ''
     // })
+    // setState():是一个异步函数,会先执行43行代码,所以需要等到匿名函数执行完在执行一个回调函数
     this.setState((prevState) => ({
         list: [...prevState.list , prevState.inputValue],
         inputValue: ''
-    }))
+    }),() => {
+      console.log(this.ul.querySelectorAll('li').length)  
+    }) //回调函数
+    // console.log(this.ul.querySelectorAll('li').length)
   }
 
   // 删除
@@ -71,8 +75,14 @@ class TodoList extends Component {
     })
   }
 
+  // 在组件即将被挂载到页面的时刻自动执行
+  componentWillMount() {
+    console.log('componentWillMount')
+  }
+
+  // 在组件被挂载到页面的时刻执行render(){}
   render() {
-    console.log('render')
+    console.log('parent render')
     return (
       <Fragment>
         <div>
@@ -83,6 +93,9 @@ class TodoList extends Component {
             className='input' 
             value={this.state.inputValue}
             onChange={this.handleInputChange}
+            // ref:访问DOM节点，只有类组件可以使用ref，函数组件不能使用ref属性
+            // 参数ref只在使用React.forwardRef定义组件时存在，函数组件和class组件不接收ref参数，且props中也不存在ref
+            ref={(input) => { this.input = input }}
           />
           <button 
             onClick={this.handleBtnClick}
@@ -90,12 +103,35 @@ class TodoList extends Component {
             提交
           </button>
         </div>
-        <ul>      
+        <ul  ref={(ul) => { this.ul = ul }}>      
             {this.getTodoItem()}
         </ul>
         <Test item={this.state.inputValue} />
       </Fragment>
     );
+  }
+
+  // 组件被挂载到页面之后，自动被执行
+  componentDidMount() {
+    console.log('componentDidMount')
+  }
+
+  // 组件被更新之前，自动被执行，判断组件是否进行更新，需要返回一个bool值
+  shouldComponentUpdate() {
+    console.log('shouldComponentUpdate')
+    return true
+  }
+
+  // 组件被更新之前，它会自动执行，但是它在shouldComponentUpdate之后被执行
+  // 如果shouldComponentUpdate返回true它才会执行
+  // 如果返回false，这个函数就不会被执行了
+  componentWillUpdate() {
+    console.log('componentWillUpdate')
+  }
+
+  // 组件更新完成之后，它会被执行
+  componentDidUpdate() {
+    console.log('componentDidUpdate')
   }
 }
 
